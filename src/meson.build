@@ -45,6 +45,9 @@ sources = [
 	'data/sources/steam/Steam.vala',
 	'data/sources/steam/SteamGame.vala',
 
+	'data/sources/epicgames/EpicGames.vala',
+	'data/sources/epicgames/EpicGamesGame.vala',
+
 	'data/sources/gog/GOG.vala',
 	'data/sources/gog/GOGGame.vala',
 
@@ -104,6 +107,7 @@ sources = [
 	'ui/dialogs/SettingsDialog/pages/general/Collection.vala',
 	'ui/dialogs/SettingsDialog/pages/general/Tweaks.vala',
 	'ui/dialogs/SettingsDialog/pages/sources/Steam.vala',
+		'ui/dialogs/SettingsDialog/pages/sources/EpicGames.vala',
 	'ui/dialogs/SettingsDialog/pages/sources/GOG.vala',
 	'ui/dialogs/SettingsDialog/pages/sources/Humble.vala',
 	'ui/dialogs/SettingsDialog/pages/sources/Itch.vala',
