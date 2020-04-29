@@ -85,16 +85,30 @@ namespace GameHub.Data.Sources.EpicGames
 		{
 			debug("[EpicGames] Load games");
 
-			var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());
-			string? line = null;
-			MatchInfo info;
-			while ((line = yield output.read_line_async ()) != null) {
-				// FIXME: This REGEX is ugly
-				if (/\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/.match (line, 0, out info)) {
-					debug ("\tname = %s\tid = %s\tversion = %s\n\n", info.fetch (1), info.fetch (2), info.fetch (3));
-					_games.add(new EpicGamesGame(this, info.fetch (1),  info.fetch (2)));
+			Utils.thread("GOGLoading", () => {
+				_games.clear();
+				var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());
+				string? line = null;
+				MatchInfo info;
+				games_count = 0;
+				while ((line = output.read_line()) != null) {
+					// FIXME: This REGEX is ugly
+					if (/\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/.match (line, 0, out info)) {
+						debug ("\tname = %s\tid = %s\tversion = %s\n\n", info.fetch (1), info.fetch (2), info.fetch (3));
+						var g = new EpicGamesGame(this, info.fetch (1),  info.fetch (2));
+						
+						if(game_loaded != null)
+						{
+							game_loaded(g, true);
+						}
+						_games.add(g);
+						games_count++;
+						g.save();
+					}
 				}
-			}
+				Idle.add(load_games.callback);
+			});
+			yield;
 			return _games;
 		}
 
