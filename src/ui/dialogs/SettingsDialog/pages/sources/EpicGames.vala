@@ -25,10 +25,6 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 {
 	public class EpicGames: SettingsDialogPage
 	{
-		private Settings.Auth.Humble humble_auth;
-		private Button logout_btn;
-		private FileChooserEntry games_dir_chooser;
-
 		public EpicGames(SettingsDialog dlg)
 		{
 			Object(
