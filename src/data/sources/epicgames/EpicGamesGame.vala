@@ -85,7 +85,12 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override async void install(Runnable.Installer.InstallMode install_mode=Runnable.Installer.InstallMode.INTERACTIVE)
 		{
-			debug("[EpicGamesGame] install: NOT IMPLEMENTED");
+			var output = new DataInputStream(new Subprocess.newv ({"legendary", "download", id}, STDOUT_PIPE).get_stdout_pipe ());
+			string? line = null;
+			while ((line = output.read_line()) != null) {
+				debug("[EpicGames] %s", line);
+			}
+
 		}
 		public override async void uninstall()
 		{

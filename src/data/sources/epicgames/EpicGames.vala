@@ -121,6 +121,9 @@ namespace GameHub.Data.Sources.EpicGames
 				{
 					cache_loaded();
 				}
+				var regex = /\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/;
+
+				var installed_output = new DataInputStream(new Subprocess.newv ({"legendary", "list-installed"}, STDOUT_PIPE).get_stdout_pipe ());
 
 
 				var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());
@@ -128,7 +131,7 @@ namespace GameHub.Data.Sources.EpicGames
 				MatchInfo info;
 				while ((line = output.read_line()) != null) {
 					// FIXME: This REGEX is ugly
-					if (/\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/.match (line, 0, out info)) {
+					if (regex.match (line, 0, out info)) {
 						debug ("\tname = %s\tid = %s\tversion = %s\n\n", info.fetch (1), info.fetch (2), info.fetch (3));
 						var g = new EpicGamesGame(this, info.fetch (1),  info.fetch (2));
 						bool is_new_game =  !_games.contains(g);
