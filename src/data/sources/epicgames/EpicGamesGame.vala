@@ -28,7 +28,7 @@ namespace GameHub.Data.Sources.EpicGames
 		public EpicGamesGame(EpicGames src, string nameP, string idP)
 		{
 			source = src;
-			name = nameP;
+			name = nameP + "test";
 			id = idP;
 			icon = "";
 			platforms.add(Platform.WINDOWS);
@@ -100,6 +100,7 @@ namespace GameHub.Data.Sources.EpicGames
 					}
 				}
 			}
+			update_status();
 		}
 
 		public override async void install(Runnable.Installer.InstallMode install_mode=Runnable.Installer.InstallMode.INTERACTIVE)

@@ -105,6 +105,7 @@ namespace GameHub.Data.Sources.EpicGames
 				_games.clear();
 				
 				games_count = 0;
+				
 				var cached = Tables.Games.get_all(this);
 				if(cached.size > 0)
 				{
@@ -126,6 +127,7 @@ namespace GameHub.Data.Sources.EpicGames
 				{
 					cache_loaded();
 				}
+				
 				var regex = /\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/;
 
 				var installed_output = new DataInputStream(new Subprocess.newv ({"legendary", "list-installed"}, STDOUT_PIPE).get_stdout_pipe ());
@@ -154,6 +156,8 @@ namespace GameHub.Data.Sources.EpicGames
 							}
 							_games.add(g);
 							games_count++;
+						} else {
+							_games.get(_games.index_of(g)).update_status();
 						}
 					}
 				}
