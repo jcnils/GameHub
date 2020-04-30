@@ -33,7 +33,7 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 		{
 			Object(
 				dialog: dlg,
-				title: "Humble Bundle",
+				title: "EpicGames",
 				description: _("Disabled"),
 				icon_name: "source-epicgames-symbolic",
 				activatable: true
@@ -45,63 +45,11 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 		{
 			var paths = FSUtils.Paths.Settings.instance;
 
-			humble_auth = Settings.Auth.Humble.instance;
-
-			add_switch(_("Load games from Humble Trove"), humble_auth.load_trove_games, v => { humble_auth.load_trove_games = v; update(); request_restart(); });
-
-			add_separator();
-
-			games_dir_chooser = add_file_chooser(_("Games directory"), FileChooserAction.SELECT_FOLDER, paths.humble_games, v => { paths.humble_games = v; update(); request_restart(); }).get_children().last().data as FileChooserEntry;
-
-			status_switch.active = humble_auth.enabled;
-			status_switch.notify["active"].connect(() => {
-				humble_auth.enabled = status_switch.active;
-				request_restart();
-				update();
-			});
-
-			logout_btn = new Button.with_label(_("Logout"));
-			action_area.add(logout_btn);
-
-			logout_btn.clicked.connect(() => {
-				humble_auth.authenticated = false;
-				humble_auth.access_token = "";
-				request_restart();
-				update();
-			});
-
 			update();
 		}
 
 		private void update()
 		{
-			content_area.sensitive = humble_auth.enabled;
-			logout_btn.sensitive = humble_auth.authenticated && humble_auth.access_token.length > 0;
-
-			if(" " in FSUtils.Paths.Settings.instance.humble_games)
-			{
-				games_dir_chooser.get_style_context().add_class(Gtk.STYLE_CLASS_ERROR);
-				status_type = StatusType.ERROR;
-			}
-			else
-			{
-				games_dir_chooser.get_style_context().remove_class(Gtk.STYLE_CLASS_ERROR);
-				status_type = restart_requested ? StatusType.WARNING : StatusType.NONE;
-			}
-			dialog.update_games_dir_space_message();
-
-			if(!humble_auth.enabled)
-			{
-				status = description = _("Disabled");
-			}
-			else if(!humble_auth.authenticated || humble_auth.access_token.length == 0)
-			{
-				status = description = _("Not authenticated");
-			}
-			else
-			{
-				status = description = _("Authenticated");
-			}
 		}
 
 	}

@@ -157,7 +157,8 @@ namespace GameHub.Data.Sources.EpicGames
 							_games.add(g);
 							games_count++;
 						} else {
-							_games.get(_games.index_of(g)).update_status();
+							var index = _games.index_of(g);
+							_games.get(index).update_status();
 						}
 					}
 				}
