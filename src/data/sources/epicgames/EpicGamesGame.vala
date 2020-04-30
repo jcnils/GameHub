@@ -31,6 +31,7 @@ namespace GameHub.Data.Sources.EpicGames
 			name = nameP;
 			id = idP;
 			icon = "";
+			image = src.legendary_wrapper.get_image(id);
 			platforms.add(Platform.LINUX);
 
 			install_dir = null;
@@ -74,7 +75,7 @@ namespace GameHub.Data.Sources.EpicGames
 			info = Tables.Games.INFO.get(s);
 			info_detailed = Tables.Games.INFO_DETAILED.get(s);
 			icon = Tables.Games.ICON.get(s);
-			image = Tables.Games.IMAGE.get(s);
+			image = src.legendary_wrapper.get_image(id);//Tables.Games.IMAGE.get(s);
 			install_dir = Tables.Games.INSTALL_PATH.get(s) != null ? FSUtils.file(Tables.Games.INSTALL_PATH.get(s)) : null;
 			executable_path = Tables.Games.EXECUTABLE.get(s);
 			work_dir_path = Tables.Games.WORK_DIR.get(s);

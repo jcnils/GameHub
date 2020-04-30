@@ -32,6 +32,30 @@ namespace GameHub.Data.Sources.EpicGames
 			return result;
 		}
 
+		public string get_image(string id)
+		{
+			string res = "";
+			var file = File.new_for_path("/home/dotevo/.config/legendary/metadata/"+id+".json");
+
+			if (file.query_exists ()) {
+				var dis = new DataInputStream (file.read ());
+				string line;
+	
+				while ((line = dis.read_line (null)) != null) {
+					res += line;
+				}
+				var parser = new Json.Parser ();
+				parser.load_from_data (res);
+				var root_object = parser.get_root().get_object();
+	
+				var metadata = root_object.get_object_member ("metadata");
+				var keyImages = metadata.get_array_member ("keyImages");
+				var img = keyImages.get_object_element (0).get_string_member ("url");
+				return img;
+			}
+			return "";
+		}
+
 		public void install(string id)
 		{
 			// FIXME: It can be done much better
