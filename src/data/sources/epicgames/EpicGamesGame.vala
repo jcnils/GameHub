@@ -32,26 +32,18 @@ namespace GameHub.Data.Sources.EpicGames
 			id = idP;
 			icon = "";
 			platforms.add(Platform.WINDOWS);
+
+			install_dir = null;
+			executable_path = "$game_dir/start.sh";
+			work_dir_path = "$game_dir";
+			info_detailed = @"{}";
+
+			mount_overlays.begin();
 			update_status();
 		}
 
 		public override void update_status()
 		{
-			if(status.state == Game.State.DOWNLOADING && status.download.status.state != Downloader.Download.State.CANCELLED) return;
-
-			status = new Game.Status(executable != null && executable.query_exists() ? Game.State.INSTALLED : Game.State.UNINSTALLED, this);
-			if(status.state == Game.State.INSTALLED)
-			{
-				remove_tag(Tables.Tags.BUILTIN_UNINSTALLED);
-				add_tag(Tables.Tags.BUILTIN_INSTALLED);
-			}
-			else
-			{
-				add_tag(Tables.Tags.BUILTIN_UNINSTALLED);
-				remove_tag(Tables.Tags.BUILTIN_INSTALLED);
-			}
-
-			installers_dir = FSUtils.file(FSUtils.Paths.Collection.Humble.expand_installers(name));
 
 			update_version();
 		}

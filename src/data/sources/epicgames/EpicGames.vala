@@ -89,6 +89,11 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override async ArrayList<Game> load_games(Utils.FutureResult2<Game, bool>? game_loaded=null, Utils.Future? cache_loaded=null)
 		{
+			if(_games.size > 0)
+			{
+				return _games;
+			}
+
 			debug("[EpicGames] Load games");
 
 			Utils.thread("EpicGamesLoading", () => {
@@ -128,13 +133,13 @@ namespace GameHub.Data.Sources.EpicGames
 						var g = new EpicGamesGame(this, info.fetch (1),  info.fetch (2));
 						bool is_new_game =  !_games.contains(g);
 						if(is_new_game) {
+							g.save();
 							if(game_loaded != null)
 							{
 								game_loaded(g, true);
 							}
 							_games.add(g);
 							games_count++;
-							g.save();
 						}
 					}
 				}

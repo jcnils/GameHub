@@ -22,6 +22,7 @@ using Sqlite;
 using GameHub.Utils;
 
 using GameHub.Data.Sources.Steam;
+using GameHub.Data.Sources.EpicGames;
 using GameHub.Data.Sources.GOG;
 using GameHub.Data.Sources.Humble;
 using GameHub.Data.Sources.Itch;
@@ -395,6 +396,10 @@ namespace GameHub.Data.DB.Tables
 					if(s is Steam)
 					{
 						g = new SteamGame.from_db((Steam) s, st);
+					}
+					else if(s is EpicGames)
+					{
+						g = new EpicGamesGame.from_db((EpicGames) s, st);
 					}
 					else if(s is GOG)
 					{
