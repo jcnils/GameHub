@@ -26,7 +26,7 @@ namespace GameHub.Data.Sources.EpicGames
 	public class EpicGames: GameSource
 	{
 		public static EpicGames instance;
-
+		
 		public override string id { get { return "epicgames"; } }
 		public override string name { get { return "EpicGames"; } }
 		public override string icon { get { return "source-epicgames-symbolic"; } }
@@ -41,12 +41,15 @@ namespace GameHub.Data.Sources.EpicGames
 		}
 
 
+		public LegendaryWrapper? legendary_wrapper { get; private set; }
+
 		public string? user_id { get; protected set; }
 		public string? user_name { get; protected set; }
 
 		public EpicGames()
 		{
 			instance = this;
+			legendary_wrapper = new LegendaryWrapper();
 		}
 
 		public override bool is_installed(bool refresh)
@@ -89,32 +92,6 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override ArrayList<Game> games { get { return _games; } }
 
-		private ArrayList<string> _installed = new ArrayList<string>();
-
-		public bool refresh = true;
-
-		public void invalidate_installed() {refresh = true;}
-		
-		public bool is_app_installed(string id) {
-			if(refresh) {
-				build_installed();
-			}
-			refresh = false;
-			return _installed.contains(id);
-		}
-
-		private void build_installed() {
-			var installed_output = new DataInputStream(new Subprocess.newv ({"legendary", "list-installed"}, STDOUT_PIPE).get_stdout_pipe ());
-			_installed.clear();
-			string? line = null;
-			MatchInfo info;
-			while ((line = installed_output.read_line()) != null) {
-				if (regex.match (line, 0, out info)) {
-					_installed.add(info.fetch(2));
-				}
-			}
-		}
-
 		public override async ArrayList<Game> load_games(Utils.FutureResult2<Game, bool>? game_loaded=null, Utils.Future? cache_loaded=null)
 		{
 			if(_games.size > 0)
@@ -152,8 +129,6 @@ namespace GameHub.Data.Sources.EpicGames
 				}
 				
 				
-
-				build_installed();
 				string? line = null;
 				MatchInfo info;
 				var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());

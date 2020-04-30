@@ -47,6 +47,7 @@ sources = [
 
 	'data/sources/epicgames/EpicGames.vala',
 	'data/sources/epicgames/EpicGamesGame.vala',
+	'data/sources/epicgames/LegendaryWrapper.vala',
 
 	'data/sources/gog/GOG.vala',
 	'data/sources/gog/GOGGame.vala',

@@ -31,7 +31,7 @@ namespace GameHub.Data.Sources.EpicGames
 			name = nameP;
 			id = idP;
 			icon = "";
-			platforms.add(Platform.WINDOWS);
+			platforms.add(Platform.LINUX);
 
 			install_dir = null;
 			executable_path = "$game_dir/start.sh";
@@ -45,7 +45,7 @@ namespace GameHub.Data.Sources.EpicGames
 		public override void update_status()
 		{
 			var state = Game.State.UNINSTALLED;
-			if (((EpicGames)source).is_app_installed(id)) {
+			if (((EpicGames)source).legendary_wrapper.is_installed(id)) {
 				state = Game.State.INSTALLED;
 				debug ("New installed game: \tname = %s\t", name);
 			} else {
@@ -104,37 +104,19 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override async void install(Runnable.Installer.InstallMode install_mode=Runnable.Installer.InstallMode.INTERACTIVE)
 		{
-			// FIXME: It can be done much better
-			var process = new Subprocess.newv ({"legendary", "download", id}, STDOUT_PIPE | STDIN_PIPE);
-			var input = new DataOutputStream(process.get_stdin_pipe ());
-			var output = new DataInputStream(process.get_stdout_pipe ());
-			string? line = null;
-			input.put_string("y\n");
-			while ((line = output.read_line()) != null) {
-				debug("[EpicGames] %s", line);
-			}
-			((EpicGames)source).invalidate_installed();
+			((EpicGames)source).legendary_wrapper.install(id);
 			update_status();
 		}
 		public override async void uninstall()
 		{
-			// FIXME: It can be done much better
-			var process = new Subprocess.newv ({"legendary", "uninstall", id}, STDOUT_PIPE | STDIN_PIPE);
-			var input = new DataOutputStream(process.get_stdin_pipe ());
-			var output = new DataInputStream(process.get_stdout_pipe ());
-			string? line = null;
-			input.put_string("y\n");
-			while ((line = output.read_line()) != null) {
-				debug("[EpicGames] %s", line);
-			}
-			((EpicGames)source).invalidate_installed();
+			((EpicGames)source).legendary_wrapper.uninstall(id);
 			update_status();
 		}
 
 		public override async void run()
 		{
-			// FIXME: not good idea
-			new Subprocess.newv ({"legendary", "launch", id}, STDOUT_PIPE);
+			((EpicGames)source).legendary_wrapper.run(id);
+		
 		}
 
 	}
