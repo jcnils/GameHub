@@ -28,7 +28,7 @@ namespace GameHub.Data.Sources.EpicGames
 		public EpicGamesGame(EpicGames src, string nameP, string idP)
 		{
 			source = src;
-			name = nameP + "test";
+			name = nameP;
 			id = idP;
 			icon = "";
 			platforms.add(Platform.WINDOWS);
