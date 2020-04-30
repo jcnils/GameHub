@@ -128,28 +128,22 @@ namespace GameHub.Data.Sources.EpicGames
 					cache_loaded();
 				}
 				
-				
-				string? line = null;
-				MatchInfo info;
-				var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());
-
-				while ((line = output.read_line()) != null) {
-					// FIXME: This REGEX is ugly
-					if (regex.match (line, 0, out info)) {
-						var g = new EpicGamesGame(this, info.fetch (1),  info.fetch (2));
-						bool is_new_game =  !_games.contains(g);
-						if(is_new_game) {
-							g.save();
-							if(game_loaded != null)
-							{
-								game_loaded(g, true);
-							}
-							_games.add(g);
-							games_count++;
-						} else {
-							var index = _games.index_of(g);
-							_games.get(index).update_status();
+				var games = legendary_wrapper.getGames();
+				foreach(var game in games)
+				{
+					var g = new EpicGamesGame(this, game.name,  game.id);
+					bool is_new_game =  !_games.contains(g);
+					if(is_new_game) {
+						g.save();
+						if(game_loaded != null)
+						{
+							game_loaded(g, true);
 						}
+						_games.add(g);
+						games_count++;
+					} else {
+						var index = _games.index_of(g);
+						_games.get(index).update_status();
 					}
 				}
 				Idle.add(load_games.callback);
