@@ -44,6 +44,37 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override void update_status()
 		{
+			var regex = /\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/;
+			var installed_output = new DataInputStream(new Subprocess.newv ({"legendary", "list-installed"}, STDOUT_PIPE).get_stdout_pipe ());
+			var state = Game.State.UNINSTALLED;
+
+			string? line = null;
+			MatchInfo info;
+			while ((line = installed_output.read_line()) != null) {
+				// FIXME: This REGEX is ugly
+				if (regex.match (line, 0, out info)) {
+					debug ("Installed \tname = %s\tid = %s\tversion = %s\n\n", info.fetch (1), info.fetch (2), info.fetch (3));
+					debug("'%s' - '%s'", id, info.fetch(2));
+					if(info.fetch(2) == id) {
+						debug("Installed");
+						state = Game.State.INSTALLED;
+						executable_path = "ls";
+						break;
+					}
+					
+				}
+			}
+			status = new Game.Status(state, this);
+			if(state == Game.State.INSTALLED)
+			{
+				remove_tag(Tables.Tags.BUILTIN_UNINSTALLED);
+				add_tag(Tables.Tags.BUILTIN_INSTALLED);
+			}
+			else
+			{
+				add_tag(Tables.Tags.BUILTIN_UNINSTALLED);
+				remove_tag(Tables.Tags.BUILTIN_INSTALLED);
+			}
 
 			update_version();
 		}
@@ -85,16 +116,24 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override async void install(Runnable.Installer.InstallMode install_mode=Runnable.Installer.InstallMode.INTERACTIVE)
 		{
-			var output = new DataInputStream(new Subprocess.newv ({"legendary", "download", id}, STDOUT_PIPE).get_stdout_pipe ());
+			// FIXME: It can be done much better
+			var process = new Subprocess.newv ({"legendary", "download", id}, STDOUT_PIPE | STDIN_PIPE);
+			var input = new DataOutputStream(process.get_stdin_pipe ());
+			var output = new DataInputStream(process.get_stdout_pipe ());
 			string? line = null;
+			input.put_string("y\n");
 			while ((line = output.read_line()) != null) {
 				debug("[EpicGames] %s", line);
 			}
-
 		}
 		public override async void uninstall()
 		{
 			debug("[EpicGamesGame] uninstall: NOT IMPLEMENTED");
+		}
+
+		public override async void run()
+		{
+			new Subprocess.newv ({"legendary", "launch", id}, STDOUT_PIPE);
 		}
 
 	}
