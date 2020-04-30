@@ -44,27 +44,11 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override void update_status()
 		{
-			var regex = /\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/;
-			var installed_output = new DataInputStream(new Subprocess.newv ({"legendary", "list-installed"}, STDOUT_PIPE).get_stdout_pipe ());
 			var state = Game.State.UNINSTALLED;
-
-			string? line = null;
-			MatchInfo info;
-			while ((line = installed_output.read_line()) != null) {
-				// FIXME: This REGEX is ugly
-				if (regex.match (line, 0, out info)) {
-					debug ("Installed \tname = %s\tid = %s\tversion = %s\n\n", info.fetch (1), info.fetch (2), info.fetch (3));
-					debug("'%s' - '%s'", id, info.fetch(2));
-					if(info.fetch(2) == id) {
-						debug("Installed");
-						state = Game.State.INSTALLED;
-						executable_path = "ls";
-						break;
-					}
-					
-				}
+			if (((EpicGames)source).is_app_installed(id)) {
+				state = Game.State.INSTALLED;
 			}
-			status = new Game.Status(state, this);
+			
 			if(state == Game.State.INSTALLED)
 			{
 				remove_tag(Tables.Tags.BUILTIN_UNINSTALLED);
@@ -75,7 +59,7 @@ namespace GameHub.Data.Sources.EpicGames
 				add_tag(Tables.Tags.BUILTIN_UNINSTALLED);
 				remove_tag(Tables.Tags.BUILTIN_INSTALLED);
 			}
-
+			status = new Game.Status(state, this);
 			update_version();
 		}
 

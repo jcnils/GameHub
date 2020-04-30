@@ -87,6 +87,11 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override ArrayList<Game> games { get { return _games; } }
 
+		private ArrayList<string> _installed = new ArrayList<string>();
+		public bool is_app_installed(string id) {
+			return _installed.contains(id);
+		}
+
 		public override async ArrayList<Game> load_games(Utils.FutureResult2<Game, bool>? game_loaded=null, Utils.Future? cache_loaded=null)
 		{
 			if(_games.size > 0)
@@ -123,9 +128,19 @@ namespace GameHub.Data.Sources.EpicGames
 				}
 				var regex = /\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/;
 
-				var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());
+				var installed_output = new DataInputStream(new Subprocess.newv ({"legendary", "list-installed"}, STDOUT_PIPE).get_stdout_pipe ());
+	
 				string? line = null;
 				MatchInfo info;
+				while ((line = installed_output.read_line()) != null) {
+					// FIXME: This REGEX is ugly
+					if (regex.match (line, 0, out info)) {
+						_installed.add(info.fetch(2));
+					}
+				}
+
+				var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());
+
 				while ((line = output.read_line()) != null) {
 					// FIXME: This REGEX is ugly
 					if (regex.match (line, 0, out info)) {
