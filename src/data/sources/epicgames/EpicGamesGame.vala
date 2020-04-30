@@ -32,6 +32,7 @@ namespace GameHub.Data.Sources.EpicGames
 			id = idP;
 			icon = "";
 			platforms.add(Platform.WINDOWS);
+			platforms.add(Platform.LINUX);
 
 			install_dir = null;
 			executable_path = "$game_dir/start.sh";
@@ -47,6 +48,10 @@ namespace GameHub.Data.Sources.EpicGames
 			var state = Game.State.UNINSTALLED;
 			if (((EpicGames)source).is_app_installed(id)) {
 				state = Game.State.INSTALLED;
+				debug ("New installed game: \tname = %s\t", name);
+			} else {
+
+				debug ("New not installed game: \tname = %s\t", name);
 			}
 			
 			if(state == Game.State.INSTALLED)
@@ -60,7 +65,6 @@ namespace GameHub.Data.Sources.EpicGames
 				remove_tag(Tables.Tags.BUILTIN_INSTALLED);
 			}
 			status = new Game.Status(state, this);
-			update_version();
 		}
 
 		public EpicGamesGame.from_db(EpicGames src, Sqlite.Statement s)

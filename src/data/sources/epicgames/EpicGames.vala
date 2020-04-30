@@ -144,7 +144,6 @@ namespace GameHub.Data.Sources.EpicGames
 				while ((line = output.read_line()) != null) {
 					// FIXME: This REGEX is ugly
 					if (regex.match (line, 0, out info)) {
-						debug ("\tname = %s\tid = %s\tversion = %s\n\n", info.fetch (1), info.fetch (2), info.fetch (3));
 						var g = new EpicGamesGame(this, info.fetch (1),  info.fetch (2));
 						bool is_new_game =  !_games.contains(g);
 						if(is_new_game) {

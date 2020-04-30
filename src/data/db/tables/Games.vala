@@ -312,6 +312,10 @@ namespace GameHub.Data.DB.Tables
 				{
 					g = new SteamGame.from_db((Steam) s, st);
 				}
+				else if(s is EpicGames)
+				{
+					g = new EpicGamesGame.from_db((EpicGames) s, st);
+				}
 				else if(s is GOG)
 				{
 					g = new GOGGame.from_db((GOG) s, st);
