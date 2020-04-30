@@ -1,6 +1,7 @@
 /*
 This file is part of GameHub.
 Copyright (C) 2018-2019 Anatoliy Kashkin
+Copyright (C) 2020 Adam Jordanek
 
 GameHub is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -48,32 +49,37 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override bool is_installed(bool refresh)
 		{
+			debug("[EpicGames] is_installed: NOT IMPLEMENTED");
 			return true;
 		}
 
 		public override async bool install()
 		{
+			debug("[EpicGames] install: NOT IMPLEMENTED");
 			return true;
 		}
 
 		public override async bool authenticate()
 		{
+			debug("[EpicGames] authenticate: NOT IMPLEMENTED");
 			return true;
 		}
 
 		public override bool is_authenticated()
 		{
+			debug("[EpicGames] is_authenticated: NOT IMPLEMENTED");
 			return true;
 		}
 
 		public override bool can_authenticate_automatically()
 		{
+			debug("[EpicGames] can_authenticate_automatically: NOT IMPLEMENTED");
 			return true;
 		}
 
 		public async bool refresh_token()
 		{
-			debug("TEST2");
+			debug("[EpicGames] refresh_token: NOT IMPLEMENTED");
 			return true;
 		}
 
@@ -85,25 +91,51 @@ namespace GameHub.Data.Sources.EpicGames
 		{
 			debug("[EpicGames] Load games");
 
-			Utils.thread("GOGLoading", () => {
+			Utils.thread("EpicGamesLoading", () => {
 				_games.clear();
+				
+				games_count = 0;
+				var cached = Tables.Games.get_all(this);
+				if(cached.size > 0)
+				{
+					foreach(var g in cached)
+					{
+							if(!Settings.UI.Behavior.instance.merge_games || !Tables.Merges.is_game_merged(g))
+							{
+								_games.add(g);
+								if(game_loaded != null)
+								{
+									game_loaded(g, true);
+								}
+							}
+						games_count++;
+					}
+				}
+
+				if(cache_loaded != null)
+				{
+					cache_loaded();
+				}
+
+
 				var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());
 				string? line = null;
 				MatchInfo info;
-				games_count = 0;
 				while ((line = output.read_line()) != null) {
 					// FIXME: This REGEX is ugly
 					if (/\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/.match (line, 0, out info)) {
 						debug ("\tname = %s\tid = %s\tversion = %s\n\n", info.fetch (1), info.fetch (2), info.fetch (3));
 						var g = new EpicGamesGame(this, info.fetch (1),  info.fetch (2));
-						
-						if(game_loaded != null)
-						{
-							game_loaded(g, true);
+						bool is_new_game =  !_games.contains(g);
+						if(is_new_game) {
+							if(game_loaded != null)
+							{
+								game_loaded(g, true);
+							}
+							_games.add(g);
+							games_count++;
+							g.save();
 						}
-						_games.add(g);
-						games_count++;
-						g.save();
 					}
 				}
 				Idle.add(load_games.callback);

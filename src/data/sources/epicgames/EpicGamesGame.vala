@@ -93,9 +93,11 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override async void install(Runnable.Installer.InstallMode install_mode=Runnable.Installer.InstallMode.INTERACTIVE)
 		{
+			debug("[EpicGamesGame] install: NOT IMPLEMENTED");
 		}
 		public override async void uninstall()
 		{
+			debug("[EpicGamesGame] uninstall: NOT IMPLEMENTED");
 		}
 
 	}
