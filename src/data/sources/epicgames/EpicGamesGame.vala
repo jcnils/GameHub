@@ -32,7 +32,6 @@ namespace GameHub.Data.Sources.EpicGames
 			id = idP;
 			icon = "";
 			platforms.add(Platform.WINDOWS);
-			platforms.add(Platform.LINUX);
 
 			install_dir = null;
 			executable_path = "$game_dir/start.sh";
