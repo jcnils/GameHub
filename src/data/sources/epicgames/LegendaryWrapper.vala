@@ -35,7 +35,7 @@ namespace GameHub.Data.Sources.EpicGames
 		public string get_image(string id)
 		{
 			string res = "";
-			var file = File.new_for_path("/home/dotevo/.config/legendary/metadata/"+id+".json");
+			var file = File.new_for_path(Environment.get_home_dir () + "/.config/legendary/metadata/"+id+".json");
 
 			if (file.query_exists ()) {
 				var dis = new DataInputStream (file.read ());
