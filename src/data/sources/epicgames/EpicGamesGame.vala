@@ -113,14 +113,27 @@ namespace GameHub.Data.Sources.EpicGames
 			while ((line = output.read_line()) != null) {
 				debug("[EpicGames] %s", line);
 			}
+			((EpicGames)source).invalidate_installed();
+			update_status();
 		}
 		public override async void uninstall()
 		{
-			debug("[EpicGamesGame] uninstall: NOT IMPLEMENTED");
+			// FIXME: It can be done much better
+			var process = new Subprocess.newv ({"legendary", "uninstall", id}, STDOUT_PIPE | STDIN_PIPE);
+			var input = new DataOutputStream(process.get_stdin_pipe ());
+			var output = new DataInputStream(process.get_stdout_pipe ());
+			string? line = null;
+			input.put_string("y\n");
+			while ((line = output.read_line()) != null) {
+				debug("[EpicGames] %s", line);
+			}
+			((EpicGames)source).invalidate_installed();
+			update_status();
 		}
 
 		public override async void run()
 		{
+			// FIXME: not good idea
 			new Subprocess.newv ({"legendary", "launch", id}, STDOUT_PIPE);
 		}
 

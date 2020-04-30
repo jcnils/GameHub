@@ -31,6 +31,8 @@ namespace GameHub.Data.Sources.EpicGames
 		public override string name { get { return "EpicGames"; } }
 		public override string icon { get { return "source-epicgames-symbolic"; } }
 
+		private Regex regex = /\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/;
+
 		private bool enable = true;
 		public override bool enabled
 		{
@@ -88,8 +90,29 @@ namespace GameHub.Data.Sources.EpicGames
 		public override ArrayList<Game> games { get { return _games; } }
 
 		private ArrayList<string> _installed = new ArrayList<string>();
+
+		public bool refresh = true;
+
+		public void invalidate_installed() {refresh = true;}
+		
 		public bool is_app_installed(string id) {
+			if(refresh) {
+				build_installed();
+			}
+			refresh = false;
 			return _installed.contains(id);
+		}
+
+		private void build_installed() {
+			var installed_output = new DataInputStream(new Subprocess.newv ({"legendary", "list-installed"}, STDOUT_PIPE).get_stdout_pipe ());
+			_installed.clear();
+			string? line = null;
+			MatchInfo info;
+			while ((line = installed_output.read_line()) != null) {
+				if (regex.match (line, 0, out info)) {
+					_installed.add(info.fetch(2));
+				}
+			}
 		}
 
 		public override async ArrayList<Game> load_games(Utils.FutureResult2<Game, bool>? game_loaded=null, Utils.Future? cache_loaded=null)
@@ -128,19 +151,11 @@ namespace GameHub.Data.Sources.EpicGames
 					cache_loaded();
 				}
 				
-				var regex = /\*\s*([^(]*)\s\(App\sname:\s([a-zA-Z0-9]+),\sversion:\s([^)]*)\)/;
+				
 
-				var installed_output = new DataInputStream(new Subprocess.newv ({"legendary", "list-installed"}, STDOUT_PIPE).get_stdout_pipe ());
-	
+				build_installed();
 				string? line = null;
 				MatchInfo info;
-				while ((line = installed_output.read_line()) != null) {
-					// FIXME: This REGEX is ugly
-					if (regex.match (line, 0, out info)) {
-						_installed.add(info.fetch(2));
-					}
-				}
-
 				var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());
 
 				while ((line = output.read_line()) != null) {
