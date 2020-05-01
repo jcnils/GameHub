@@ -21,10 +21,14 @@ using Gee;
 using GameHub.Data.DB;
 using GameHub.Utils;
 
+using GameHub.Utils.Downloader;
+
 namespace GameHub.Data.Sources.EpicGames
 {
 	public class EpicGamesGame: Game
 	{
+		public ArrayList<Runnable.Installer>? installers { get; protected set; default = new ArrayList<Runnable.Installer>(); }
+
 		public EpicGamesGame(EpicGames src, string nameP, string idP)
 		{
 			source = src;
@@ -100,12 +104,14 @@ namespace GameHub.Data.Sources.EpicGames
 					}
 				}
 			}
+			installers.add(new EpicGamesGame.EpicGamesInstaller(this, id));
 			update_status();
 		}
 
 		public override async void install(Runnable.Installer.InstallMode install_mode=Runnable.Installer.InstallMode.INTERACTIVE)
 		{
-			((EpicGames)source).legendary_wrapper.install(id);
+			new GameHub.UI.Dialogs.InstallDialog(this, installers, install_mode, install.callback);
+			yield;
 			update_status();
 		}
 		public override async void uninstall()
@@ -120,5 +126,47 @@ namespace GameHub.Data.Sources.EpicGames
 		
 		}
 
+		public class EpicGamesInstaller: Runnable.Installer
+		{
+			public EpicGamesGame game;
+			public override string name { owned get { return "TEST"; } }
+	
+			public EpicGamesInstaller(EpicGamesGame game, string id)
+			{
+				this.game = game;
+				id = id;
+				platform = Platform.CURRENT;
+			}
+
+			public override async void install(Runnable runnable, CompatTool? tool=null)
+			{
+				EpicGamesGame? game = null;
+				if(runnable is EpicGamesGame)
+				{
+					game = runnable as EpicGamesGame;
+				}
+
+				EpicGames epic = (EpicGames)(game.source);
+
+				Utils.thread("EpicGamesGame.Installer", () => {
+					game.status = new Game.Status(Game.State.DOWNLOADING, game, null);
+
+
+					epic.legendary_wrapper.install(game.id);
+					Idle.add(install.callback);
+				});
+				yield;
+
+				if(game != null) game.status = new Game.Status(Game.State.INSTALLED, game, null);
+
+				runnable.update_status();
+
+				debug("install");
+			}
+		}
 	}
+
+
+
+
 }
