@@ -54,6 +54,18 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override bool is_installed(bool refresh)
 		{
+			//check if legendary exists
+			var legendary = Utils.find_executable("legendary");
+
+			if(legendary == null || !legendary.query_exists())
+			{
+				debug("[EpicGames] is_installed: Legendary not found");
+			}
+			else
+			{
+				debug("[EpicGames] is_installed: LegendaryYES");
+			}
+
 			debug("[EpicGames] is_installed: NOT IMPLEMENTED");
 			return true;
 		}
