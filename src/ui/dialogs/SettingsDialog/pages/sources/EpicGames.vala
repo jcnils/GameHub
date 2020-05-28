@@ -49,8 +49,9 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 
 			add_separator();
 
-			//add_apikey_entry();
-			//add_link(_("Generate key"), "https://itch.io/api-keys");
+			//Legendary Authentication
+			legendary_controller();
+
 
 			add_separator();
 
@@ -78,7 +79,7 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 			}
 			else if(!epic.is_installed())
 			{
-				status = description = _("Missing Legendary");
+				status = description = _("Missing Legendary package");
 			}
 			else if(!epic.is_authenticated())
 			{
@@ -89,6 +90,31 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 				status = description = epic.user_name != null ? _("Authenticated as <b>%s</b>").printf(epic.user_name) : _("Authenticated");
 			}
 
+		}
+
+		protected void legendary_controller()
+		{
+			var epic_auth = Settings.Auth.Epic.instance;
+
+			var entry = new Entry();
+			entry.max_length = 40;
+			if(epic_auth.auth_code != epic_auth.schema.get_default_value("auth-code").get_string())
+			{
+				entry.text = epic_auth.auth_code;
+			}
+			entry.primary_icon_name = "source-epicgames-symbolic";
+			entry.set_size_request(280, -1);
+
+			entry.notify["text"].connect(() => { epic_auth.auth_code = entry.text; request_restart(); });
+
+			var label = new Label(_("Authentication Code"));
+			label.halign = Align.START;
+			label.hexpand = true;
+
+			var hbox = new Box(Orientation.HORIZONTAL, 12);
+			hbox.add(label);
+			hbox.add(entry);
+			add_widget(hbox);
 		}
 
 	}
