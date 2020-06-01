@@ -83,6 +83,7 @@ namespace GameHub.Data.Sources.EpicGames
 			installed = legendary_executable != null && legendary_executable.query_exists();
 
 			return (!) installed;
+			//return false;
 
 		}
 
@@ -94,20 +95,25 @@ namespace GameHub.Data.Sources.EpicGames
 
 		public override async bool authenticate()
 		{
-			debug("[EpicGames] authenticate: NOT IMPLEMENTED");
-			return true;
+			if(is_authenticated()) return true;
+
+			debug("[EpicGames] authenticate: false");
+			return false;
 		}
 
 		public override bool is_authenticated()
 		{
-			debug("[EpicGames] is_authenticated: NOT IMPLEMENTED");
-			return true;
+			bool is_auth =  legendary_wrapper.is_authenticated();
+			debug("[EpicGames] is_authenticated: %s",is_auth.to_string());
+			return is_auth;
+			//return true;
 		}
 
 		public override bool can_authenticate_automatically()
 		{
-			debug("[EpicGames] can_authenticate_automatically: NOT IMPLEMENTED");
-			return true;
+			bool can_authenticate = Settings.Auth.Epic.instance.authenticated && Settings.Auth.Epic.instance.auth_code != null && Settings.Auth.Epic.instance.auth_code.length > 0;
+			debug("[EpicGames] can_authenticate_automatically: %s", can_authenticate.to_string());
+			return can_authenticate;
 		}
 
 		public async bool refresh_token()

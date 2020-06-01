@@ -26,7 +26,7 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 	public class EpicGames: SettingsDialogPage
 	{
 		private Settings.Auth.Epic epic_auth;
-		private FileChooserEntry games_dir_chooser;
+
 
 		public EpicGames(SettingsDialog dlg)
 		{
@@ -45,15 +45,15 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 			var paths = FSUtils.Paths.Settings.instance;
 			epic_auth = Settings.Auth.Epic.instance;
 
-			games_dir_chooser = add_file_chooser(_("Games directory"), FileChooserAction.SELECT_FOLDER, paths.epic_games, v => { paths.epic_games = v; request_restart(); update(); }).get_children().last().data as FileChooserEntry;
-
-			add_separator();
-
 			//Legendary Authentication
-			legendary_controller();
+			legendary_auth();
+			adjust_margins(add_labeled_link(_("To authenticate paste the SID code on the field above"), _("Generate code"), "https://www.epicgames.com/id/login?redirectUrl=https%3A%2F%2Fwww.epicgames.com%2Fid%2Fapi%2Fredirect"));
 
+			adjust_margins(add_separator());
 
-			add_separator();
+			adjust_margins(add_file_chooser(_("Games directory"), FileChooserAction.SELECT_FOLDER, paths.epic_games, v => { paths.epic_games = v; request_restart();  }, false));
+
+			adjust_margins(add_separator());
 
 			status_switch.active = epic_auth.enabled;
 			status_switch.notify["active"].connect(() => {
@@ -83,7 +83,7 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 			}
 			else if(!epic.is_authenticated())
 			{
-				status = description = _("Not authenticated");
+				status = description = _("Legendary not authenticated");
 			}
 			else
 			{
@@ -92,7 +92,7 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 
 		}
 
-		protected void legendary_controller()
+		protected void legendary_auth()
 		{
 			var epic_auth = Settings.Auth.Epic.instance;
 
@@ -103,11 +103,19 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 				entry.text = epic_auth.auth_code;
 			}
 			entry.primary_icon_name = "source-epicgames-symbolic";
+			entry.secondary_icon_name = "edit-delete-symbolic";
+			entry.secondary_icon_tooltip_text = _("Clean authentication code");
 			entry.set_size_request(280, -1);
 
 			entry.notify["text"].connect(() => { epic_auth.auth_code = entry.text; request_restart(); });
+			entry.icon_press.connect((pos, e) => {
+				if(pos == EntryIconPosition.SECONDARY)
+				{
+					entry.text = "";
+				}
+			});
 
-			var label = new Label(_("Authentication Code"));
+			var label = new Label(_("Epic Authentication Code"));
 			label.halign = Align.START;
 			label.hexpand = true;
 
@@ -115,7 +123,14 @@ namespace GameHub.UI.Dialogs.SettingsDialog.Pages.Sources
 			hbox.add(label);
 			hbox.add(entry);
 			add_widget(hbox);
-		}
 
+			adjust_margins(hbox);
+		}
+		
+		private void adjust_margins(Widget w)
+		{
+			w.margin_start = 16;
+			w.margin_end = 12;
+		}
 	}
 }

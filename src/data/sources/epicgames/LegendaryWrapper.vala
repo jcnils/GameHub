@@ -24,6 +24,7 @@ namespace GameHub.Data.Sources.EpicGames
 			var output = new DataInputStream(new Subprocess.newv ({"legendary", "list-games"}, STDOUT_PIPE).get_stdout_pipe ());
 
 			while ((line = output.read_line()) != null) {
+				debug("[EpicGames] %s", line);
 				if (regex.match (line, 0, out info)) {
 					LegendaryGame? g = {info.fetch (1),  info.fetch (2),  info.fetch (3)};
 					result.add(g);
@@ -114,6 +115,63 @@ namespace GameHub.Data.Sources.EpicGames
 				}
 			}
 		}
+
+		public bool is_authenticated()
+		{
+			// FIXME: It can be done much better - either with change a few things on legendary or we interface with Epic
+			
+			bool is_auth = false;
+			string message = "still valid";
+			var output = new DataInputStream(new Subprocess.newv ({"legendary", "auth"}, STDOUT_PIPE).get_stdout_pipe ());
+			string? line = null;
+
+			if((line = output.read_line()) == null) is_auth = true;
+
+			//FIXME: auth messages are not returning things.
+			/*while ((line = output.read_line()) != null) {
+				if(line.contains(message)) is_auth = true;
+				debug("[EpicGames] %s", line);
+			}*/
+
+			debug("[EpicGames.is_authenticated] %s", is_auth.to_string());
+			return is_auth;
+
+		}
 		
+		public bool clean_credentials()
+		{
+			// FIXME: It can be done much better - either with change a few things on legendary or we interface with Epic
+			
+			bool cleaned = false;
+			var output = new DataInputStream(new Subprocess.newv ({"legendary", "auth", "--delete"}, STDOUT_PIPE).get_stdout_pipe ());
+			string? line = null;
+
+			if((line = output.read_line()) == null) cleaned = true;
+
+
+			debug("[EpicGames.clean_credentials] %s", cleaned.to_string());
+			return cleaned;
+
+		}
+
+
+		public bool authenticate(string auth_code)
+		{
+			// FIXME: It can be done much better - either with change a few things on legendary or we interface with Epic
+			
+			bool is_auth = false;
+			string message = "still valid";
+			var output = new DataInputStream(new Subprocess.newv ({"legendary", "auth", "--sid", auth_code}, STDOUT_PIPE).get_stdout_pipe ());
+			string? line = null;
+
+			if((line = output.read_line()) == null) is_auth = true;
+
+
+			debug("[EpicGames.authenticate] %s", is_auth.to_string());
+			return is_auth;
+
+		}
+
+
 	}
 }
